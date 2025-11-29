@@ -92,7 +92,7 @@ class CheckoutsController < ApplicationController
         product = @products.find { |p| p.id.to_s == product_id }
         next unless product
 
-        # Check stock availability
+        # Check item stock availability
         if product.stock_quantity < quantity
           flash.now[:alert] = "Insufficient stock for #{product.name}. Only #{product.stock_quantity} available."
           render :new, status: :unprocessable_entity
