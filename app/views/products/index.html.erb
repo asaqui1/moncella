@@ -1,0 +1,57 @@
+<% content_for :title, "Shop All Products - Moncella" %>
+
+<% content_for :breadcrumbs do %>
+  <li class="breadcrumb-item"><%= link_to "Home", root_path %></li>
+  <% if params[:category_id].present? && @selected_category %>
+    <li class="breadcrumb-item"><%= link_to "Products", products_path %></li>
+    <li class="breadcrumb-item active" aria-current="page"><%= @selected_category.name %></li>
+  <% else %>
+    <li class="breadcrumb-item active" aria-current="page">All Products</li>
+  <% end %>
+<% end %>
+
+<div class="page-header">
+  <h1>
+    <% if params[:category_id].present? && @selected_category %>
+      <%= @selected_category.name %>
+    <% elsif params[:on_sale].present? %>
+      Sale
+    <% elsif params[:new].present? %>
+      New Arrivals
+    <% else %>
+      All Products
+    <% end %>
+  </h1>
+</div>
+
+<% if @categories.any? %>
+  <div class="category-pills mb-4">
+    <div class="pill-container">
+      <%= link_to "All", products_path, class: "category-pill #{params[:category_id].blank? ? 'active' : ''}" %>
+      <% @categories.each do |category| %>
+        <%= link_to category.name,
+            products_path(category_id: category.id),
+            class: "category-pill #{params[:category_id].to_i == category.id ? 'active' : ''}" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'shared/filters' %>
+
+<% if @products.any? %>
+  <div class="products-grid">
+    <% @products.each do |product| %>
+      <%= render 'shared/product_card', product: product %>
+    <% end %>
+  </div>
+
+  <div class="pagination-container">
+    <%= paginate @products %>
+  </div>
+<% else %>
+  <div class="text-center mt-4">
+    <p>No products found matching your criteria.</p>
+    <%= link_to "Clear Filters", products_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

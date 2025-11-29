@@ -1,0 +1,46 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Shop</h4>
+        <ul>
+          <li><%= link_to "All Products", products_path %></li>
+          <li><%= link_to "New Arrivals", products_path(new: true) %></li>
+          <li><%= link_to "Sale", products_path(on_sale: true) %></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Customer Service</h4>
+        <ul>
+          <li><%= link_to "Contact Us", contact_path %></li>
+          <li><%= link_to "Shipping Information", "#" %></li>
+          <li><%= link_to "Returns & Exchanges", "#" %></li>
+          <li><%= link_to "FAQ", "#" %></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>About Moncella</h4>
+        <ul>
+          <li><%= link_to "Our Story", about_path %></li>
+          <li><%= link_to "Careers", "#" %></li>
+          <li><%= link_to "Sustainability", "#" %></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Pinterest</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <%= Time.current.year %> Moncella. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

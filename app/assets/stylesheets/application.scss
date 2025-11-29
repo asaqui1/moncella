@@ -1,0 +1,1140 @@
+// ============================================
+// MODERN ARITZIA-INSPIRED DESIGN WITH DARK MODE
+// ============================================
+
+// Light Mode Variables
+$light-primary: #000000;
+$light-secondary: #ffffff;
+$light-text: #000000;
+$light-text-muted: #666666;
+$light-bg: #ffffff;
+$light-bg-secondary: #f7f7f7;
+$light-border: #e5e5e5;
+$light-hover: #f0f0f0;
+
+// Dark Mode Variables
+$dark-primary: #ffffff;
+$dark-secondary: #000000;
+$dark-text: #ffffff;
+$dark-text-muted: #b0b0b0;
+$dark-bg: #000000;
+$dark-bg-secondary: #1a1a1a;
+$dark-border: #333333;
+$dark-hover: #2a2a2a;
+
+// Typography
+$font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 24px;
+$font-size-xxl: 32px;
+$letter-spacing-wide: 0.1em;
+$letter-spacing-normal: 0.05em;
+
+// Spacing
+$spacing-xs: 0.5rem;
+$spacing-sm: 0.75rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+
+// Bootstrap CSS
+@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css');
+
+// ============================================
+// BASE STYLES
+// ============================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  line-height: 1.6;
+  background-color: $light-bg;
+  color: $light-text;
+  transition: background-color $transition-normal, color $transition-normal;
+
+  &.dark-mode {
+    background-color: $dark-bg;
+    color: $dark-text;
+  }
+}
+
+// ============================================
+// MIXINS
+// ============================================
+
+@mixin smooth-transition($property: all) {
+  transition: $property $transition-normal;
+}
+
+@mixin uppercase-label {
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+  font-size: $font-size-xs;
+  font-weight: 600;
+}
+
+// ============================================
+// HEADER & NAVIGATION (UPDATED — ONLY THESE PARTS CHANGED)
+// ============================================
+
+.site-header {
+  background-color: $light-bg;
+  border-bottom: 1px solid $light-border;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  @include smooth-transition(background-color);
+
+  .dark-mode & {
+    background-color: $dark-bg;
+    border-bottom-color: $dark-border;
+  }
+
+  /* Top announcement row */
+  .top-bar {
+    border-bottom: 1px solid $light-border;
+    padding: $spacing-xs $spacing-md;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+
+    .dark-mode & {
+      border-bottom-color: $dark-border;
+    }
+
+    .announcement {
+      text-align: left;
+      font-size: $font-size-xs;
+      @include uppercase-label;
+      color: $light-text-muted;
+      flex: 1 1 auto;
+
+      .dark-mode & {
+        color: $dark-text-muted;
+      }
+    }
+
+    /* optional top-right wrapper (your HTML doesn't include it but this is safe) */
+    .top-right {
+      display: flex;
+      gap: $spacing-md;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+
+  /* Main navigation — REPLACED: grid-based 3-column layout so logo is perfectly centered */
+  .main-nav {
+    padding: $spacing-md 0;
+    position: relative;
+
+    .container {
+      /* FIX: use grid so center column (brand) is always centered irrespective of left/right width */
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: 100% !important;
+      gap: $spacing-md;
+      position: relative;
+    }
+
+    .nav-left {
+      /* left side (mobile toggle) */
+      justify-self: start;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      z-index: 3;
+    }
+
+    .nav-center {
+      /* brand centered */
+      justify-self: center;
+      display: flex;
+      align-items: center;
+
+      .navbar-brand {
+        display: inline-block;
+        font-size: $font-size-xl;
+        font-weight: 300;
+        letter-spacing: $letter-spacing-wide;
+        color: $light-primary;
+        text-decoration: none;
+        @include smooth-transition(opacity);
+
+        .dark-mode & {
+          color: $dark-primary;
+        }
+
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .nav-right {
+      /* icons on the right */
+      justify-self: end;
+      display: flex;
+      align-items: center;
+      gap: $spacing-lg;
+      z-index: 3;
+    }
+  }
+
+  .main-menu {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-xl;
+    padding: $spacing-md 0;
+    border-top: 1px solid $light-border;
+    list-style: none;
+    margin: 0;
+    flex-wrap: wrap;
+
+    .dark-mode & {
+      border-top-color: $dark-border;
+    }
+
+    li {
+      a {
+        @include uppercase-label;
+        color: $light-text;
+        text-decoration: none;
+        padding: $spacing-xs $spacing-sm;
+        display: block;
+        @include smooth-transition(color);
+
+        .dark-mode & {
+          color: $dark-text;
+        }
+
+        &:hover,
+        &.active {
+          color: $light-text-muted;
+
+          .dark-mode & {
+            color: $dark-text-muted;
+          }
+        }
+      }
+    }
+  }
+
+  .icon-link {
+    color: $light-text;
+    text-decoration: none;
+    font-size: $font-size-lg;
+    @include smooth-transition(opacity);
+    position: relative;
+
+    .dark-mode & {
+      color: $dark-text;
+    }
+
+    &:hover {
+      opacity: 0.6;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: $light-primary;
+      color: $light-secondary;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+
+      .dark-mode & {
+        background: $dark-primary;
+        color: $dark-secondary;
+      }
+    }
+  }
+
+  // Mobile menu toggle
+  .mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: $font-size-xl;
+    color: $light-text;
+    cursor: pointer;
+
+    .dark-mode & {
+      color: $dark-text;
+    }
+
+    @media (max-width: 991px) {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 991px) {
+    .main-menu {
+      display: none;
+
+      &.show {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  }
+}
+
+/* ensure brand link remains clickable */
+.site-header .nav-center .navbar-brand {
+  pointer-events: auto;
+}
+
+/* keep cart count small and visible */
+.site-header .cart-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: $light-primary;
+  color: $light-secondary;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.site-header .dark-mode .cart-count {
+  background: $dark-primary;
+  color: $dark-secondary;
+}
+
+/* Dark Mode Toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid $light-border;
+  border-radius: 20px;
+  padding: $spacing-xs $spacing-md;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  @include uppercase-label;
+  color: $light-text;
+  @include smooth-transition;
+
+  .dark-mode & {
+    border-color: $dark-border;
+    color: $dark-text;
+  }
+
+  &:hover {
+    background: $light-hover;
+
+    .dark-mode & {
+      background: $dark-hover;
+    }
+  }
+}
+
+/* ============================================
+   FILTERS / SEARCH (UPDATED — ONLY THESE PARTS CHANGED)
+   Align the Filter & Sort button, search field, category select horizontally and wrap responsively
+   ============================================ */
+
+.filters-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xxl;
+  width: 100%;
+
+  /* left: Filter & Sort button */
+  .filter-toggle {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    border: 1px solid $light-border;
+    background: none;
+    cursor: pointer;
+    @include uppercase-label;
+    @include smooth-transition;
+
+    .dark-mode & {
+      border-color: $dark-border;
+      color: $dark-text;
+    }
+
+    &:hover {
+      background: $light-hover;
+
+      .dark-mode & {
+        background: $dark-hover;
+      }
+    }
+  }
+
+  /* center/right: search + filter controls (form) */
+  .filters-content {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 280px;
+  }
+
+  /* inside the form: lay out search, category, quick filters horizontally */
+  .filters-content .filters-grid {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+  }
+
+  .filters-content .filter-group {
+    flex: 0 1 auto;
+    min-width: 160px; /* prevents inputs from collapsing too small */
+  }
+
+  .filters-content .filter-group input[type="text"],
+  .filters-content .filter-group select {
+    width: 100%;
+    padding: $spacing-sm;
+    border: 1px solid $light-border;
+    background: $light-bg;
+    color: $light-text;
+    font-size: $font-size-base;
+    @include smooth-transition;
+
+    .dark-mode & {
+      border-color: $dark-border;
+      background: $dark-bg;
+      color: $dark-text;
+    }
+  }
+
+  /* quick filters group: horizontal checkboxes on wide screens */
+  .filters-content .checkbox-options {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* actions (apply / clear) align to the right under filters on small screens */
+  .filter-actions {
+    display: flex;
+    gap: $spacing-md;
+    padding-top: $spacing-sm;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 768px) {
+    .filters-content {
+      justify-content: flex-start;
+    }
+    .filters-content .filters-grid {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .filter-actions {
+      justify-content: space-between;
+      padding-top: $spacing-md;
+    }
+  }
+}
+
+/* ============================================
+   REST OF YOUR ORIGINAL SCSS (unchanged)
+   I preserved everything below as-is from your original file.
+   Only the header and filters sections above were modified.
+   ============================================ */
+
+/* ============================================
+   BREADCRUMBS
+   ============================================ */
+
+.breadcrumb-container {
+  background-color: transparent;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid $light-border;
+
+  .dark-mode & {
+    border-bottom-color: $dark-border;
+  }
+
+  .breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+    font-size: $font-size-xs;
+    @include uppercase-label;
+
+    .breadcrumb-item {
+      color: $light-text-muted;
+
+      .dark-mode & {
+        color: $dark-text-muted;
+      }
+
+      a {
+        color: $light-text;
+        text-decoration: none;
+        @include smooth-transition(color);
+
+        .dark-mode & {
+          color: $dark-text;
+        }
+
+        &:hover {
+          color: $light-text-muted;
+
+          .dark-mode & {
+            color: $dark-text-muted;
+          }
+        }
+      }
+
+      + .breadcrumb-item::before {
+        content: "/";
+        padding: 0 $spacing-xs;
+        color: $light-border;
+
+        .dark-mode & {
+          color: $dark-border;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   PAGE CONTAINER
+   ============================================ */
+
+.page-container {
+  padding: $spacing-xxl 0;
+  min-height: calc(100vh - 400px);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: $spacing-xxl;
+
+  h1 {
+    font-size: $font-size-xxl;
+    font-weight: 300;
+    letter-spacing: $letter-spacing-normal;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    font-size: $font-size-sm;
+    color: $light-text-muted;
+    @include uppercase-label;
+
+    .dark-mode & {
+      color: $dark-text-muted;
+    }
+  }
+}
+
+/* ============================================
+   FILTERS - MINIMALIST DESIGN
+   (original detailed styles preserved where relevant)
+   ============================================ */
+
+.filters-wrapper {
+  margin-bottom: $spacing-xxl;
+
+  .filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    border: 1px solid $light-border;
+    background: none;
+    width: 100%;
+    cursor: pointer;
+    @include uppercase-label;
+    @include smooth-transition;
+
+    .dark-mode & {
+      border-color: $dark-border;
+      color: $dark-text;
+    }
+
+    &:hover {
+      background: $light-hover;
+
+      .dark-mode & {
+        background: $dark-hover;
+      }
+    }
+  }
+
+  .filters-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+
+    &.show {
+      max-height: 1000px;
+    }
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-lg;
+    padding: $spacing-xl 0;
+    border-bottom: 1px solid $light-border;
+
+    .dark-mode & {
+      border-bottom-color: $dark-border;
+    }
+  }
+
+  .filter-group {
+    label {
+      display: block;
+      @include uppercase-label;
+      color: $light-text-muted;
+      margin-bottom: $spacing-sm;
+
+      .dark-mode & {
+        color: $dark-text-muted;
+      }
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: $spacing-md;
+      border: 1px solid $light-border;
+      background: $light-bg;
+      color: $light-text;
+      font-size: $font-size-base;
+      font-family: $font-primary;
+      @include smooth-transition;
+
+      .dark-mode & {
+        border-color: $dark-border;
+        background: $dark-bg;
+        color: $dark-text;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $light-text;
+
+        .dark-mode & {
+          border-color: $dark-text;
+        }
+      }
+    }
+
+    .checkbox-options {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        text-transform: none;
+        letter-spacing: normal;
+        font-size: $font-size-base;
+        font-weight: 400;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: $spacing-md;
+    padding-top: $spacing-lg;
+
+    button {
+      flex: 1;
+      padding: $spacing-md;
+      border: 1px solid $light-border;
+      background: $light-primary;
+      color: $light-secondary;
+      @include uppercase-label;
+      cursor: pointer;
+      @include smooth-transition;
+
+      .dark-mode & {
+        background: $dark-primary;
+        color: $dark-secondary;
+        border-color: $dark-border;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &.btn-secondary {
+        background: transparent;
+        color: $light-text;
+
+        .dark-mode & {
+          color: $dark-text;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   CATEGORY PILLS
+   ============================================ */
+
+.category-pills {
+  margin-bottom: $spacing-xl;
+
+  .pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: $spacing-sm;
+
+    .category-pill {
+      padding: $spacing-sm $spacing-lg;
+      border: 1px solid $light-border;
+      background: transparent;
+      color: $light-text;
+      text-decoration: none;
+      @include uppercase-label;
+      @include smooth-transition;
+
+      .dark-mode & {
+        border-color: $dark-border;
+        color: $dark-text;
+      }
+
+      &:hover,
+      &.active {
+        background: $light-primary;
+        color: $light-secondary;
+        border-color: $light-primary;
+
+        .dark-mode & {
+          background: $dark-primary;
+          color: $dark-secondary;
+          border-color: $dark-primary;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   PRODUCT GRID
+   ============================================ */
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xxl;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+  }
+}
+
+.product-card {
+  text-decoration: none;
+  @include smooth-transition(opacity);
+
+  &:hover {
+    opacity: 0.8;
+
+    .product-image img {
+      transform: scale(1.03);
+    }
+  }
+
+  .product-image {
+    width: 100%;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: $light-bg-secondary;
+    margin-bottom: $spacing-md;
+
+    .dark-mode & {
+      background: $dark-bg-secondary;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      @include smooth-transition(transform);
+    }
+  }
+
+  .product-info {
+    .product-category {
+      @include uppercase-label;
+      color: $light-text-muted;
+      margin-bottom: $spacing-xs;
+
+      .dark-mode & {
+        color: $dark-text-muted;
+      }
+    }
+
+    .product-name {
+      font-size: $font-size-base;
+      font-weight: 400;
+      color: $light-text;
+      margin-bottom: $spacing-xs;
+
+      .dark-mode & {
+        color: $dark-text;
+      }
+    }
+
+    .product-price {
+      font-size: $font-size-base;
+      color: $light-text;
+
+      .dark-mode & {
+        color: $dark-text;
+      }
+
+      .sale-badge {
+        color: #c41e3a;
+        margin-left: $spacing-sm;
+        font-size: $font-size-xs;
+        @include uppercase-label;
+      }
+    }
+
+    .product-stock {
+      font-size: $font-size-xs;
+      color: $light-text-muted;
+      margin-top: $spacing-xs;
+
+      .dark-mode & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+
+  .btn-add-cart {
+    width: 100%;
+    margin-top: $spacing-md;
+    padding: $spacing-md;
+    background: $light-primary;
+    color: $light-secondary;
+    border: none;
+    @include uppercase-label;
+    cursor: pointer;
+    @include smooth-transition;
+
+    .dark-mode & {
+      background: $dark-primary;
+      color: $dark-secondary;
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* ============================================
+   PRODUCT DETAIL
+   ============================================ */
+
+.product-detail {
+  .product-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-xxl;
+    margin-bottom: $spacing-xxl;
+
+    @media (max-width: 991px) {
+      grid-template-columns: 1fr;
+    }
+
+    .product-image-large {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: $light-bg-secondary;
+
+      .dark-mode & {
+        background: $dark-bg-secondary;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .product-details {
+      .product-category {
+        @include uppercase-label;
+        color: $light-text-muted;
+        margin-bottom: $spacing-sm;
+
+        .dark-mode & {
+          color: $dark-text-muted;
+        }
+      }
+
+      .product-title {
+        font-size: $font-size-xl;
+        font-weight: 300;
+        margin-bottom: $spacing-lg;
+      }
+
+      .product-price {
+        font-size: $font-size-lg;
+        margin-bottom: $spacing-xl;
+        padding-bottom: $spacing-xl;
+        border-bottom: 1px solid $light-border;
+
+        .dark-mode & {
+          border-bottom-color: $dark-border;
+        }
+      }
+
+      .product-description {
+        font-size: $font-size-base;
+        line-height: 1.8;
+        margin-bottom: $spacing-xl;
+        padding-bottom: $spacing-xl;
+        border-bottom: 1px solid $light-border;
+
+        .dark-mode & {
+          border-bottom-color: $dark-border;
+        }
+      }
+
+      .product-stock {
+        @include uppercase-label;
+        color: $light-text-muted;
+        margin-bottom: $spacing-xl;
+
+        .dark-mode & {
+          color: $dark-text-muted;
+        }
+      }
+
+      .btn-add-cart-large {
+        width: 100%;
+        padding: $spacing-lg;
+        background: $light-primary;
+        color: $light-secondary;
+        border: none;
+        @include uppercase-label;
+        font-size: $font-size-base;
+        cursor: pointer;
+        @include smooth-transition;
+
+        .dark-mode & {
+          background: $dark-primary;
+          color: $dark-secondary;
+        }
+
+        &:hover:not(:disabled) {
+          opacity: 0.8;
+        }
+
+        &:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.site-footer {
+  background: $light-bg;
+  border-top: 1px solid $light-border;
+  padding: $spacing-xxl 0 $spacing-xl;
+  margin-top: $spacing-xxl;
+
+  .dark-mode & {
+    background: $dark-bg;
+    border-top-color: $dark-border;
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-xl;
+    margin-bottom: $spacing-xl;
+
+    .footer-section {
+      h4 {
+        @include uppercase-label;
+        margin-bottom: $spacing-md;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+
+        li {
+          margin-bottom: $spacing-sm;
+
+          a {
+            color: $light-text-muted;
+            text-decoration: none;
+            font-size: $font-size-sm;
+            @include smooth-transition(color);
+
+            .dark-mode & {
+              color: $dark-text-muted;
+            }
+
+            &:hover {
+              color: $light-text;
+
+              .dark-mode & {
+                color: $dark-text;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $light-border;
+    font-size: $font-size-xs;
+    color: $light-text-muted;
+    @include uppercase-label;
+
+    .dark-mode & {
+      border-top-color: $dark-border;
+      color: $dark-text-muted;
+    }
+  }
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin: $spacing-xxl 0;
+
+  .pagination {
+    display: flex;
+    gap: $spacing-xs;
+
+    .page-item {
+      .page-link {
+        padding: $spacing-sm $spacing-md;
+        border: 1px solid $light-border;
+        background: transparent;
+        color: $light-text;
+        text-decoration: none;
+        @include uppercase-label;
+        @include smooth-transition;
+
+        .dark-mode & {
+          border-color: $dark-border;
+          color: $dark-text;
+        }
+
+        &:hover {
+          background: $light-hover;
+
+          .dark-mode & {
+            background: $dark-hover;
+          }
+        }
+      }
+
+      &.active .page-link {
+        background: $light-primary;
+        color: $light-secondary;
+        border-color: $light-primary;
+
+        .dark-mode & {
+          background: $dark-primary;
+          color: $dark-secondary;
+          border-color: $dark-primary;
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+  text-align: center;
+}
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: $spacing-sm; }
+.mb-2 { margin-bottom: $spacing-md; }
+.mb-3 { margin-bottom: $spacing-lg; }
+.mb-4 { margin-bottom: $spacing-xl; }

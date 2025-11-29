@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  province: one
+  order_date: 2025-11-26 15:27:50
+  subtotal: 9.99
+  gst_amount: 9.99
+  pst_amount: 9.99
+  total_amount: 9.99
+  status: MyString
+
+two:
+  user: two
+  province: two
+  order_date: 2025-11-26 15:27:50
+  subtotal: 9.99
+  gst_amount: 9.99
+  pst_amount: 9.99
+  total_amount: 9.99
+  status: MyString

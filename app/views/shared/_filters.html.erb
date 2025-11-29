@@ -1,0 +1,68 @@
+<div class="filters-wrapper">
+  <button class="filter-toggle" onclick="toggleFilters()" type="button">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="4" y1="21" x2="4" y2="14"></line>
+      <line x1="4" y1="10" x2="4" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12" y2="3"></line>
+      <line x1="20" y1="21" x2="20" y2="16"></line>
+      <line x1="20" y1="12" x2="20" y2="3"></line>
+      <line x1="1" y1="14" x2="7" y2="14"></line>
+      <line x1="9" y1="8" x2="15" y2="8"></line>
+      <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+    <span>Filter & Sort</span>
+  </button>
+
+  <div class="filters-content" id="filters-content">
+    <%= form_with url: products_path, method: :get, local: true do |f| %>
+      <div class="filters-grid">
+        <!-- Search -->
+        <div class="filter-group">
+          <%= f.label :q, "Search" %>
+          <%= f.text_field :q, value: params[:q], placeholder: "Search products..." %>
+        </div>
+
+        <!-- Category -->
+        <div class="filter-group">
+          <%= f.label :category_id, "Category" %>
+          <%= f.select :category_id,
+              options_for_select([["All Categories", ""]] + @categories.map { |c| [c.name, c.id] }, params[:category_id]),
+              {},
+              { class: "form-select" } %>
+        </div>
+
+        <!-- Quick Filters -->
+        <div class="filter-group">
+          <label>Quick Filters</label>
+          <div class="checkbox-options">
+            <label>
+              <%= check_box_tag :on_sale, true, params[:on_sale].present? %>
+              <span>On Sale</span>
+            </label>
+            <label>
+              <%= check_box_tag :new, true, params[:new].present? %>
+              <span>New Arrivals</span>
+            </label>
+            <label>
+              <%= check_box_tag :recently_updated, true, params[:recently_updated].present? %>
+              <span>Recently Updated</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <%= f.submit "Apply Filters", class: "btn-primary" %>
+        <%= link_to "Clear All", products_path, class: "btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  function toggleFilters() {
+    const content = document.getElementById('filters-content');
+    content.classList.toggle('show');
+  }
+</script>

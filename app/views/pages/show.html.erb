@@ -1,0 +1,7 @@
+<h1><%= @page.name.capitalize %></h1>
+
+<div class="page-content">
+  <%= @page.content.html_safe %>
+</div>
+
+<%= link_to "Back to Products", root_path %>

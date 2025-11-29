@@ -1,0 +1,42 @@
+<div class="product-card">
+  <%= link_to product_path(product), style: "text-decoration: none;" do %>
+    <div class="product-image">
+      <% if product.image.attached? %>
+        <%= image_tag product.image, alt: product.name %>
+      <% else %>
+        <%= image_tag "https://via.placeholder.com/400x533/f7f7f7/cccccc?text=#{product.name.first}", alt: "Product image" %>
+      <% end %>
+    </div>
+
+    <div class="product-info">
+      <div class="product-category">
+        <%= product.category.name %>
+      </div>
+
+      <div class="product-name">
+        <%= product.name %>
+      </div>
+
+      <div class="product-price">
+        $<%= number_with_precision(product.price, precision: 2) %>
+        <% if product.on_sale %>
+          <span class="sale-badge">Sale</span>
+        <% end %>
+      </div>
+
+      <div class="product-stock">
+        <% if product.stock_quantity > 0 %>
+          <%= product.stock_quantity %> <%= product.stock_quantity == 1 ? 'item' : 'items' %> available
+        <% else %>
+          Out of stock
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= button_to "Add to Cart",
+      add_cart_path(product_id: product.id),
+      method: :post,
+      class: "btn-add-cart",
+      disabled: product.stock_quantity <= 0 %>
+</div>

@@ -1,0 +1,435 @@
+<% content_for :title, "Checkout - Moncella" %>
+
+<% content_for :breadcrumbs do %>
+  <li class="breadcrumb-item"><%= link_to "Home", root_path %></li>
+  <li class="breadcrumb-item"><%= link_to "Cart", cart_path %></li>
+  <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+<% end %>
+
+<div class="checkout-container">
+  <div class="page-header">
+    <h1>Checkout</h1>
+  </div>
+
+  <%= form_with url: checkout_confirm_path, method: :post, local: true, class: "checkout-form" do %>
+    <div class="checkout-grid">
+      <!-- Left Column: Customer Information -->
+      <div class="checkout-section">
+        <h2 class="section-title">Shipping Information</h2>
+
+        <%= fields_for :customer, @customer do |f| %>
+          <div class="form-group">
+            <%= f.label :username, "Full Name" %>
+            <%= f.text_field :username,
+                required: true,
+                value: @customer.username || (current_customer&.username),
+                placeholder: "John Doe" %>
+            <% if @customer.errors[:username].any? %>
+              <span class="error-message"><%= @customer.errors[:username].first %></span>
+            <% end %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :street, "Street Address" %>
+            <%= f.text_field :street,
+                required: true,
+                value: @customer.street || (current_customer&.street),
+                placeholder: "123 Main Street" %>
+            <% if @customer.errors[:street].any? %>
+              <span class="error-message"><%= @customer.errors[:street].first %></span>
+            <% end %>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <%= f.label :city, "City" %>
+              <%= f.text_field :city,
+                  required: true,
+                  value: @customer.city || (current_customer&.city),
+                  placeholder: "Toronto" %>
+              <% if @customer.errors[:city].any? %>
+                <span class="error-message"><%= @customer.errors[:city].first %></span>
+              <% end %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :postal_code, "Postal Code" %>
+             <%= f.text_field :postal_code,
+               required: true,
+               value: @customer.postal_code || (current_customer&.postal_code),
+               placeholder: "A1B 2C3" %>
+              <% if @customer.errors[:postal_code].any? %>
+                <span class="error-message"><%= @customer.errors[:postal_code].first %></span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :province_id, "Province" %>
+            <%= f.collection_select :province_id,
+                ProvinceTax.all.order(:name),
+                :id,
+                :name,
+                { prompt: "Select your province" },
+                { required: true,
+                  selected: @customer.province_id || (current_customer&.province_id),
+                  onchange: "updateTaxes()" } %>
+            <% if @customer.errors[:province_id].any? %>
+              <span class="error-message"><%= @customer.errors[:province_id].first %></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Right Column: Order Summary -->
+      <div class="checkout-section order-summary-section">
+        <h2 class="section-title">Order Summary</h2>
+
+        <div class="order-items">
+          <% @products.each do |product| %>
+            <% quantity = @cart[product.id.to_s].to_i %>
+            <% line_total = product.price * quantity %>
+
+            <div class="order-item">
+              <div class="item-image">
+                <% if product.image.attached? %>
+                  <%= image_tag product.image, alt: product.name %>
+                <% else %>
+                  <div class="placeholder-image"></div>
+                <% end %>
+              </div>
+              <div class="item-details">
+                <div class="item-name"><%= product.name %></div>
+                <div class="item-quantity">Qty: <%= quantity %></div>
+              </div>
+              <div class="item-price">
+                $<%= number_with_precision(line_total, precision: 2) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="order-totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span class="amount">$<%= number_with_precision(@subtotal, precision: 2) %></span>
+          </div>
+
+          <% if @gst > 0 %>
+            <div class="total-row tax-row">
+              <span>GST (<%= @customer.province_tax&.gst || 0 %>%)</span>
+              <span class="amount">$<%= number_with_precision(@gst, precision: 2) %></span>
+            </div>
+          <% end %>
+
+          <% if @pst > 0 %>
+            <div class="total-row tax-row">
+              <span>PST (<%= @customer.province_tax&.pst || 0 %>%)</span>
+              <span class="amount">$<%= number_with_precision(@pst, precision: 2) %></span>
+            </div>
+          <% end %>
+
+          <% if @hst > 0 %>
+            <div class="total-row tax-row">
+              <span>HST (<%= @customer.province_tax&.hst || 0 %>%)</span>
+              <span class="amount">$<%= number_with_precision(@hst, precision: 2) %></span>
+            </div>
+          <% end %>
+
+          <div class="total-row final-total">
+            <span>Total</span>
+            <span class="amount">$<%= number_with_precision(@total, precision: 2) %></span>
+          </div>
+        </div>
+
+        <%= submit_tag "Place Order", class: "btn-place-order" %>
+
+        <div class="checkout-note">
+          By placing this order, you agree to our terms and conditions.
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="back-to-cart">
+    <%= link_to "← Back to Cart", cart_path %>
+  </div>
+</div>
+
+<style>
+.checkout-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 991px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.checkout-section {
+  background: var(--light-bg, #ffffff);
+  padding: 40px;
+  border: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .checkout-section {
+  background: var(--dark-bg, #000000);
+  border-color: var(--dark-border, #333333);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .section-title {
+  border-bottom-color: var(--dark-border, #333333);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--light-text-muted, #666666);
+}
+
+.dark-mode .form-group label {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--light-border, #e5e5e5);
+  background: var(--light-bg, #ffffff);
+  color: var(--light-text, #000000);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.dark-mode .form-group input,
+.dark-mode .form-group select {
+  border-color: var(--dark-border, #333333);
+  background: var(--dark-bg, #000000);
+  color: var(--dark-text, #ffffff);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--light-text, #000000);
+}
+
+.dark-mode .form-group input:focus,
+.dark-mode .form-group select:focus {
+  border-color: var(--dark-text, #ffffff);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.error-message {
+  display: block;
+  color: #c41e3a;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Order Summary */
+.order-summary-section {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.order-items {
+  margin-bottom: 30px;
+}
+
+.order-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .order-item {
+  border-bottom-color: var(--dark-border, #333333);
+}
+
+.order-item:first-child {
+  padding-top: 0;
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  background: var(--light-bg-secondary, #f7f7f7);
+}
+
+.dark-mode .item-image {
+  background: var(--dark-bg-secondary, #1a1a1a);
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background: var(--light-bg-secondary, #f7f7f7);
+}
+
+.dark-mode .placeholder-image {
+  background: var(--dark-bg-secondary, #1a1a1a);
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.item-quantity {
+  font-size: 12px;
+  color: var(--light-text-muted, #666666);
+}
+
+.dark-mode .item-quantity {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.item-price {
+  font-weight: 500;
+}
+
+.order-totals {
+  padding: 24px 0;
+  border-top: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .order-totals {
+  border-top-color: var(--dark-border, #333333);
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.total-row.tax-row {
+  color: var(--light-text-muted, #666666);
+  font-size: 13px;
+}
+
+.dark-mode .total-row.tax-row {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.total-row.final-total {
+  font-size: 18px;
+  font-weight: 600;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .total-row.final-total {
+  border-top-color: var(--dark-border, #333333);
+}
+
+.btn-place-order {
+  width: 100%;
+  padding: 16px;
+  background: var(--light-primary, #000000);
+  color: var(--light-secondary, #ffffff);
+  border: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  margin-top: 24px;
+}
+
+.dark-mode .btn-place-order {
+  background: var(--dark-primary, #ffffff);
+  color: var(--dark-secondary, #000000);
+}
+
+.btn-place-order:hover {
+  opacity: 0.8;
+}
+
+.checkout-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--light-text-muted, #666666);
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+.dark-mode .checkout-note {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.back-to-cart {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.back-to-cart a {
+  color: var(--light-text-muted, #666666);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.dark-mode .back-to-cart a {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.back-to-cart a:hover {
+  color: var(--light-text, #000000);
+}
+
+.dark-mode .back-to-cart a:hover {
+  color: var(--dark-text, #ffffff);
+}
+</style>

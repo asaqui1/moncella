@@ -1,0 +1,40 @@
+<h1>Your Shopping Cart</h1>
+
+<% if @cart_items.empty? %>
+  <p>Your cart is empty.</p>
+  <%= link_to "Back to Products", products_path %>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Line Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @cart_items.each do |item| %>
+        <tr>
+          <td><%= link_to item[:product].name, product_path(item[:product]) %></td>
+          <td>$<%= item[:product].price %></td>
+          <td>
+            <%= form_with url: cart_update_path(item[:product]), method: :patch, local: true do %>
+              <%= number_field_tag :quantity, item[:quantity], min: 0 %>
+              <%= submit_tag "Update" %>
+            <% end %>
+          </td>
+          <td>$<%= item[:product].price * item[:quantity] %></td>
+          <td>
+            <%= button_to "Remove", cart_remove_path(item[:product]), method: :delete %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <h3>Subtotal: $<%= @subtotal %></h3>
+  <%= link_to "Continue Shopping", products_path %>
+  <%= link_to "Proceed to Checkout", "#", class: "checkout-button" %>
+<% end %>

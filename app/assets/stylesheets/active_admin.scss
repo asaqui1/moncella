@@ -1,0 +1,68 @@
+// Active Admin Styles with your custom colors
+
+// Import Active Admin base (this gives you all the structure)
+@import "active_admin/mixins";
+@import "active_admin/base";
+
+// Custom color overrides
+#title_bar {
+  background: #2c3e50 !important;
+
+  h2 {
+    color: #ffffff !important;
+  }
+
+  .action_items a {
+    background: #34495e !important;
+    color: #ffffff !important;
+  }
+}
+
+#header {
+  background: #2c3e50 !important;
+
+  h1 {
+    color: #ffffff !important;
+  }
+
+  #tabs li {
+    a {
+      color: rgba(255, 255, 255, 0.8) !important;
+
+      &:hover {
+        background: #34495e !important;
+        color: #ffffff !important;
+      }
+    }
+
+    &.current a {
+      background: #34495e !important;
+      color: #ffffff !important;
+    }
+  }
+}
+
+.index_table thead th {
+  background: #2c3e50 !important;
+  color: #ffffff !important;
+
+  a {
+    color: #ffffff !important;
+  }
+}
+
+.button,
+input[type="submit"],
+a.button {
+  background: #2c3e50 !important;
+  color: #ffffff !important;
+
+  &:hover {
+    background: #34495e !important;
+  }
+}
+
+.panel h3 {
+  background: #2c3e50 !important;
+  color: #ffffff !important;
+}

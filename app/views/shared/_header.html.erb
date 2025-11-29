@@ -1,0 +1,101 @@
+<header class="site-header">
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="announcement">
+        Free Shipping on Orders Over $100
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <div class="main-nav">
+    <div class="container">
+      <div class="nav-left">
+        <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+      </div>
+
+      <div class="nav-center">
+        <%= link_to "MONCELLA", root_path, class: "navbar-brand" %>
+      </div>
+
+      <div class="nav-right">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle" onclick="toggleDarkMode()" id="theme-toggle">
+          <span id="theme-text">Dark</span>
+        </button>
+
+        <!-- Search Icon -->
+        <%= link_to products_path, class: "icon-link", title: "Search" do %>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        <% end %>
+
+        <!-- Cart Icon -->
+        <%= link_to cart_path, class: "icon-link", title: "Shopping Cart" do %>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <!-- Optional: Show cart count -->
+          <%# <span class="cart-count">3</span> %>
+        <% end %>
+
+        <!-- Account -->
+        <% if customer_signed_in? %>
+          <%= link_to edit_customer_registration_path, class: "icon-link", title: "Account" do %>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          <% end %>
+        <% else %>
+          <%= link_to new_customer_session_path, class: "icon-link", title: "Sign In" do %>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Menu -->
+  <div class="container">
+    <ul class="main-menu" id="main-menu">
+      <li><%= link_to "New", products_path(new: true), class: current_page?(products_path(new: true)) ? 'active' : '' %></li>
+      <li><%= link_to "Products", products_path, class: current_page?(products_path) ? 'active' : '' %></li>
+      <li><%= link_to "Sale", products_path(on_sale: true), class: current_page?(products_path(on_sale: true)) ? 'active' : '' %></li>
+      <li><%= link_to "About", about_path, class: current_page?(about_path) ? 'active' : '' %></li>
+      <li><%= link_to "Contact", contact_path, class: current_page?(contact_path) ? 'active' : '' %></li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  // Dark Mode Toggle
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    document.getElementById('theme-text').textContent = isDark ? 'Light' : 'Dark';
+  }
+
+  // Load saved theme preference
+  document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme === 'true') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('theme-text').textContent = 'Light';
+    }
+  });
+
+  // Mobile Menu Toggle
+  function toggleMobileMenu() {
+    document.getElementById('main-menu').classList.toggle('show');
+  }
+</script>

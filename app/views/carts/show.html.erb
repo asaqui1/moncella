@@ -1,0 +1,498 @@
+<% content_for :title, "Shopping Cart - Moncella" %>
+
+<% content_for :breadcrumbs do %>
+  <li class="breadcrumb-item"><%= link_to "Home", root_path %></li>
+  <li class="breadcrumb-item active" aria-current="page">Cart</li>
+<% end %>
+
+<div class="cart-container">
+  <div class="page-header">
+    <h1>Shopping Cart</h1>
+    <% if @cart_items.any? %>
+      <div class="subtitle"><%= pluralize(@cart_items.size, 'item') %> in your cart</div>
+    <% end %>
+  </div>
+
+  <% if @cart_items.empty? %>
+    <div class="empty-cart">
+      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity: 0.3; margin-bottom: 20px;">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+      </svg>
+      <p class="empty-message">Your cart is empty</p>
+      <p class="empty-submessage">Start adding some products to get started</p>
+      <%= link_to "Continue Shopping", products_path, class: "btn-continue-shopping" %>
+    </div>
+  <% else %>
+    <div class="cart-grid">
+      <!-- Left: Cart Items -->
+      <div class="cart-items-section">
+        <% @cart_items.each do |item| %>
+          <div class="cart-item">
+            <div class="item-image">
+              <%= link_to product_path(item[:product]) do %>
+                <% if item[:product].image.attached? %>
+                  <%= image_tag item[:product].image, alt: item[:product].name %>
+                <% else %>
+                  <div class="placeholder-image"></div>
+                <% end %>
+              <% end %>
+            </div>
+
+            <div class="item-details">
+              <%= link_to item[:product].name, product_path(item[:product]), class: "item-name" %>
+              <div class="item-category"><%= item[:product].category.name %></div>
+              <div class="item-price-mobile">$<%= number_with_precision(item[:product].price, precision: 2) %></div>
+            </div>
+
+            <div class="item-quantity">
+              <%= form_with url: update_cart_path(product_id: item[:product].id), method: :patch, local: true, class: "quantity-form" do |f| %>
+                <button type="button" class="qty-btn" onclick="decrementQty(this)">−</button>
+                <%= f.number_field :quantity,
+                    value: item[:quantity],
+                    min: 1,
+                    max: item[:product].stock_quantity,
+                    class: "qty-input",
+                    onchange: "this.form.submit()" %>
+                <button type="button" class="qty-btn" onclick="incrementQty(this, <%= item[:product].stock_quantity %>)">+</button>
+              <% end %>
+            </div>
+
+            <div class="item-price">
+              $<%= number_with_precision(item[:product].price, precision: 2) %>
+            </div>
+
+            <div class="item-total">
+              $<%= number_with_precision(item[:product].price * item[:quantity], precision: 2) %>
+            </div>
+
+            <div class="item-remove">
+              <%= button_to remove_cart_path(product_id: item[:product].id),
+                  method: :delete,
+                  class: "btn-remove",
+                  data: { confirm: "Remove this item from cart?" } do %>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Right: Order Summary -->
+      <div class="cart-summary-section">
+        <h3 class="summary-title">Order Summary</h3>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span class="amount">$<%= number_with_precision(@subtotal, precision: 2) %></span>
+        </div>
+
+        <div class="summary-note">
+          Taxes and shipping calculated at checkout
+        </div>
+
+        <%= link_to "Proceed to Checkout", checkout_path, class: "btn-checkout" %>
+        <%= link_to "Continue Shopping", products_path, class: "btn-continue" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function incrementQty(btn, max) {
+    const input = btn.parentElement.querySelector('.qty-input');
+    const currentValue = parseInt(input.value);
+    if (currentValue < max) {
+      input.value = currentValue + 1;
+      input.form.submit();
+    }
+  }
+
+  function decrementQty(btn) {
+    const input = btn.parentElement.querySelector('.qty-input');
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+      input.value = currentValue - 1;
+      input.form.submit();
+    }
+  }
+</script>
+
+<style>
+.cart-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--light-text-muted, #666666);
+}
+
+.dark-mode .empty-cart {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.empty-message {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--light-text, #000000);
+}
+
+.dark-mode .empty-message {
+  color: var(--dark-text, #ffffff);
+}
+
+.empty-submessage {
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.btn-continue-shopping {
+  display: inline-block;
+  padding: 16px 40px;
+  background: var(--light-primary, #000000);
+  color: var(--light-secondary, #ffffff);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+}
+
+.dark-mode .btn-continue-shopping {
+  background: var(--dark-primary, #ffffff);
+  color: var(--dark-secondary, #000000);
+}
+
+.btn-continue-shopping:hover {
+  opacity: 0.8;
+}
+
+.cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 60px;
+  margin-top: 40px;
+}
+
+@media (max-width: 991px) {
+  .cart-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.cart-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px 100px 100px 40px;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid var(--light-border, #e5e5e5);
+  align-items: center;
+}
+
+.dark-mode .cart-item {
+  border-color: var(--dark-border, #333333);
+}
+
+@media (max-width: 768px) {
+  .cart-item {
+    grid-template-columns: 80px 1fr 40px;
+    gap: 16px;
+  }
+
+  .item-price,
+  .item-total {
+    display: none;
+  }
+
+  .item-price-mobile {
+    display: block !important;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+}
+
+.item-image {
+  width: 120px;
+  height: 150px;
+  overflow: hidden;
+  background: var(--light-bg-secondary, #f7f7f7);
+}
+
+.dark-mode .item-image {
+  background: var(--dark-bg-secondary, #1a1a1a);
+}
+
+@media (max-width: 768px) {
+  .item-image {
+    width: 80px;
+    height: 100px;
+  }
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background: var(--light-bg-secondary, #f7f7f7);
+}
+
+.dark-mode .placeholder-image {
+  background: var(--dark-bg-secondary, #1a1a1a);
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--light-text, #000000);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.dark-mode .item-name {
+  color: var(--dark-text, #ffffff);
+}
+
+.item-name:hover {
+  opacity: 0.6;
+}
+
+.item-category {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--light-text-muted, #666666);
+}
+
+.dark-mode .item-category {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.item-price-mobile {
+  display: none;
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+@media (max-width: 768px) {
+  .item-quantity {
+    grid-column: 1 / -2;
+    margin-top: 8px;
+  }
+}
+
+.quantity-form {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .quantity-form {
+  border-color: var(--dark-border, #333333);
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--light-text, #000000);
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.2s ease;
+}
+
+.dark-mode .qty-btn {
+  color: var(--dark-text, #ffffff);
+}
+
+.qty-btn:hover {
+  background: var(--light-hover, #f0f0f0);
+}
+
+.dark-mode .qty-btn:hover {
+  background: var(--dark-hover, #2a2a2a);
+}
+
+.qty-input {
+  width: 56px;
+  height: 32px;
+  border: none;
+  border-left: 1px solid var(--light-border, #e5e5e5);
+  border-right: 1px solid var(--light-border, #e5e5e5);
+  text-align: center;
+  background: transparent;
+  color: var(--light-text, #000000);
+  font-size: 14px;
+}
+
+.dark-mode .qty-input {
+  border-left-color: var(--dark-border, #333333);
+  border-right-color: var(--dark-border, #333333);
+  color: var(--dark-text, #ffffff);
+}
+
+.qty-input:focus {
+  outline: none;
+}
+
+.item-price,
+.item-total {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.item-remove {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--light-text-muted, #666666);
+  transition: color 0.3s ease;
+}
+
+.dark-mode .btn-remove {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.btn-remove:hover {
+  color: #c41e3a;
+}
+
+/* Cart Summary */
+.cart-summary-section {
+  background: var(--light-bg-secondary, #f7f7f7);
+  padding: 32px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+
+.dark-mode .cart-summary-section {
+  background: var(--dark-bg-secondary, #1a1a1a);
+}
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--light-border, #e5e5e5);
+}
+
+.dark-mode .summary-title {
+  border-bottom-color: var(--dark-border, #333333);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.summary-row .amount {
+  font-weight: 600;
+}
+
+.summary-note {
+  font-size: 12px;
+  color: var(--light-text-muted, #666666);
+  margin: 24px 0;
+  text-align: center;
+}
+
+.dark-mode .summary-note {
+  color: var(--dark-text-muted, #b0b0b0);
+}
+
+.btn-checkout {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: var(--light-primary, #000000);
+  color: var(--light-secondary, #ffffff);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.dark-mode .btn-checkout {
+  background: var(--dark-primary, #ffffff);
+  color: var(--dark-secondary, #000000);
+}
+
+.btn-checkout:hover {
+  opacity: 0.8;
+}
+
+.btn-continue {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px solid var(--light-border, #e5e5e5);
+  color: var(--light-text, #000000);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.dark-mode .btn-continue {
+  border-color: var(--dark-border, #333333);
+  color: var(--dark-text, #ffffff);
+}
+
+.btn-continue:hover {
+  background: var(--light-hover, #f0f0f0);
+}
+
+.dark-mode .btn-continue:hover {
+  background: var(--dark-hover, #2a2a2a);
+}
+</style>

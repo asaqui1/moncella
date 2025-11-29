@@ -1,0 +1,76 @@
+<h1>Checkout</h1>
+
+<%= form_with url: checkout_confirm_path, method: :post, local: true do |f| %>
+  <h2>Customer Information</h2>
+
+  <div>
+    <%= f.label :username, "Name" %>
+    <%= f.text_field :username, value: current_customer&.username %>
+  </div>
+
+  <div>
+    <%= f.label :street, "Street" %>
+    <%= f.text_field :street, value: current_customer&.street %>
+  </div>
+
+  <div>
+    <%= f.label :city, "City" %>
+    <%= f.text_field :city, value: current_customer&.city %>
+  </div>
+
+  <div>
+    <%= f.label :postal_code, "Postal Code" %>
+    <%= f.text_field :postal_code, value: current_customer&.postal_code %>
+  </div>
+
+  <div>
+    <%= f.label :province_id, "Province" %>
+    <%= f.collection_select :province_id, ProvinceTax.all, :id, :name, selected: current_customer&.province_id %>
+  </div>
+
+  <h2>Order Summary</h2>
+
+  <% if @products.present? && session[:cart].present? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% subtotal = 0 %>
+        <% @products.each do |product| %>
+          <% quantity = session[:cart][product.id.to_s] || 0 %>
+          <% line_total = product.price * quantity %>
+          <% subtotal += line_total %>
+          <tr>
+            <td><%= product.name %></td>
+            <td><%= quantity %></td>
+            <td>$<%= '%.2f' % product.price %></td>
+            <td>$<%= '%.2f' % line_total %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% province_tax = current_customer&.province_tax || ProvinceTax.first || OpenStruct.new(gst: 0, pst: 0, hst: 0) %>
+
+    <% gst = subtotal * (province_tax.gst.to_f / 100.0) %>
+    <% pst = subtotal * (province_tax.pst.to_f / 100.0) %>
+    <% hst = subtotal * (province_tax.hst.to_f / 100.0) %>
+    <% total = subtotal + gst + pst + hst %>
+
+    <p>Subtotal: $<%= '%.2f' % subtotal %></p>
+    <p>GST: $<%= '%.2f' % gst %></p>
+    <p>PST: $<%= '%.2f' % pst %></p>
+    <p>HST: $<%= '%.2f' % hst %></p>
+    <p><strong>Total: $<%= '%.2f' % total %></strong></p>
+
+    <%= f.submit "Place Order" %>
+  <% else %>
+    <p>Your cart is empty.</p>
+  <% end %>
+<% end %>
