@@ -17,7 +17,7 @@ class Customer < ApplicationRecord
   validates :postal_code, presence: true, if: :address_required?
   validates :province_id, presence: true, if: :address_required?
 
-  # Ransack configuration
+  # Ransack's configuration
   def self.ransackable_attributes(auth_object = nil)
     [ "id", "username", "email", "street", "city", "postal_code", "province_id", "created_at", "updated_at" ]
   end
@@ -26,7 +26,7 @@ class Customer < ApplicationRecord
     [ "province_tax", "orders" ]
   end
 
-  # Helper method to get full address
+  # Helper method to get customer's full address
   def full_address
     return "Address not provided" unless street.present?
     [ street, city, province_tax&.name, postal_code ].compact.join(", ")
