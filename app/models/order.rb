@@ -9,12 +9,12 @@ class Order < ApplicationRecord
   before_validation :set_default_status, on: :create
   before_validation :assign_province_tax, on: :create
 
-  # Allow associations for Ransack
+  # Allow associations for ransack
   def self.ransackable_associations(auth_object = nil)
     %w[customer order_items province_tax]
   end
 
-  # Allow attributes for Ransack
+  # Allow attributes for ransack
   def self.ransackable_attributes(auth_object = nil)
     %w[id customer_id status subtotal gst_amount pst_amount hst_amount total_amount province_id created_at updated_at]
   end
