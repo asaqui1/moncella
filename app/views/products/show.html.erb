@@ -21,7 +21,7 @@
   <p>No image available</p>
 <% end %>
 
-<!-- Add to Cart Button (correct helper) -->
+<!-- Add to Cart Button -->
 <%= button_to "Add to Cart", add_cart_path(product_id: @product.id), method: :post, class: "add-to-cart-btn" %>
 
 <%= link_to "Back to Products", products_path %>
