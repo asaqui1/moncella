@@ -20,109 +20,130 @@ class CheckoutsController < ApplicationController
     @total = @subtotal + @gst + @pst + @hst
   end
 
-  # Process checkout and create order
-  def confirm
-    # Build or update customer
-    if current_customer
-      @customer = current_customer
-      @customer.assign_attributes(customer_params)
-    else
-      @customer = Customer.new(customer_params.merge(
-        email: customer_params[:username] + "@temp.com", # Temporary email if not signed in
-        password: SecureRandom.hex(10) # Random password for guest checkout
-      ))
-    end
+# Process checkout and create order
+def confirm
+  # Build or update customer
+  if current_customer
+    @customer = current_customer
+    @customer.assign_attributes(customer_params)
+  else
+    # For guest checkout, create customer with proper email
+    @customer = Customer.new(customer_params.merge(
+      email: "guest_#{SecureRandom.hex(8)}@moncella.com", # Generate unique guest email
+      password: SecureRandom.hex(10)
+    ))
+  end
 
-    # Validate and save customer
-    unless @customer.save
+  # Validate and save customer
+  unless @customer.save
+    prepare_checkout_view
+    flash.now[:alert] = "Please correct the errors below: #{@customer.errors.full_messages.join(', ')}"
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # Get products and validate cart
+  @products = Product.where(id: @cart.keys)
+  if @products.empty?
+    redirect_to cart_path, alert: "Your cart is empty."
+    return
+  end
+
+  # Calculate order totals
+  @subtotal = calculate_subtotal(@products)
+
+  # Get province tax - use customer's province
+  province_tax = ProvinceTax.find_by(id: @customer.province_id)
+  unless province_tax
+    prepare_checkout_view
+    flash.now[:alert] = "Invalid province selected."
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # Calculate taxes
+  @gst = @subtotal * (province_tax.gst / 100.0)
+  @pst = @subtotal * (province_tax.pst / 100.0)
+  @hst = @subtotal * (province_tax.hst / 100.0)
+  @total = @subtotal + @gst + @pst + @hst
+
+  # Create Stripe PaymentIntent
+  begin
+    payment_intent = Stripe::PaymentIntent.create({
+      amount: (@total * 100).to_i, # Stripe uses cents
+      currency: "cad",
+      automatic_payment_methods: { enabled: true },
+      metadata: {
+        customer_email: @customer.email,
+        customer_username: @customer.username
+      }
+    })
+  rescue Stripe::StripeError => e
+    prepare_checkout_view
+    flash.now[:alert] = "Payment processing error: #{e.message}"
+    render :new, status: :unprocessable_entity
+    return
+  end
+
+  # Create order - use the SAME province_id as customer
+  order = @customer.orders.build(
+    province_id: @customer.province_id, # Use customer's province_id directly
+    status: "pending",
+    order_date: Time.current,
+    subtotal: @subtotal,
+    gst_amount: @gst,
+    pst_amount: @pst,
+    hst_amount: @hst,
+    total_amount: @total,
+    payment_intent_id: payment_intent.id
+  )
+
+  # Use transaction to ensure all or nothing
+  ActiveRecord::Base.transaction do
+    unless order.save
       prepare_checkout_view
-      flash.now[:alert] = "Please correct the errors below: #{@customer.errors.full_messages.join(', ')}"
+      flash.now[:alert] = "Could not create order: #{order.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
-      return
+      raise ActiveRecord::Rollback
     end
 
-    # Get products and validate cart
-    @products = Product.where(id: @cart.keys)
-    if @products.empty?
-      redirect_to cart_path, alert: "Your cart is empty."
-      return
-    end
+    # Create order items from cart
+    @cart.each do |product_id, quantity|
+      product = @products.find { |p| p.id.to_s == product_id }
+      next unless product
 
-    # Calculate order totals
-    @subtotal = calculate_subtotal(@products)
-
-    # Get province tax
-    province_tax = ProvinceTax.find_by(id: @customer.province_id)
-    unless province_tax
-      prepare_checkout_view
-      flash.now[:alert] = "Invalid province selected."
-      render :new, status: :unprocessable_entity
-      return
-    end
-
-    # Calculate taxes
-    @gst = @subtotal * (province_tax.gst / 100.0)
-    @pst = @subtotal * (province_tax.pst / 100.0)
-    @hst = @subtotal * (province_tax.hst / 100.0)
-    @total = @subtotal + @gst + @pst + @hst
-
-    # Create order
-    order = @customer.orders.build(
-      province_id: province_tax.id,
-      status: "pending",
-      order_date: Time.current,
-      subtotal: @subtotal,
-      gst_amount: @gst,
-      pst_amount: @pst,
-      hst_amount: @hst,
-      total_amount: @total
-    )
-
-    # Use transaction to ensure all or nothing
-    ActiveRecord::Base.transaction do
-      unless order.save
-        prepare_checkout_view
-        flash.now[:alert] = "Could not create order: #{order.errors.full_messages.join(', ')}"
+      # Check item stock availability
+      if product.stock_quantity < quantity
+        flash.now[:alert] = "Insufficient stock for #{product.name}. Only #{product.stock_quantity} available."
         render :new, status: :unprocessable_entity
         raise ActiveRecord::Rollback
       end
 
-      # Create order items from cart
-      @cart.each do |product_id, quantity|
-        product = @products.find { |p| p.id.to_s == product_id }
-        next unless product
+      # Create order item
+      order_item = order.order_items.build(
+        product: product,
+        quantity: quantity,
+        price: product.price
+      )
 
-        # Check item stock availability
-        if product.stock_quantity < quantity
-          flash.now[:alert] = "Insufficient stock for #{product.name}. Only #{product.stock_quantity} available."
-          render :new, status: :unprocessable_entity
-          raise ActiveRecord::Rollback
-        end
-
-        # Create order item
-        order_item = order.order_items.build(
-          product: product,
-          quantity: quantity,
-          price: product.price
-        )
-
-        unless order_item.save
-          flash.now[:alert] = "Could not add #{product.name} to order: #{order_item.errors.full_messages.join(', ')}"
-          render :new, status: :unprocessable_entity
-          raise ActiveRecord::Rollback
-        end
-
-        # Reduce stock quantity
-        product.update!(stock_quantity: product.stock_quantity - quantity)
+      unless order_item.save
+        flash.now[:alert] = "Could not add #{product.name} to order: #{order_item.errors.full_messages.join(', ')}"
+        render :new, status: :unprocessable_entity
+        raise ActiveRecord::Rollback
       end
 
-      # Clear cart on successful order
-      session[:cart] = {}
-
-      # Redirect with success message
-      redirect_to products_path, notice: "Order ##{order.order_number} placed successfully! Total: $#{number_with_precision(@total, precision: 2)}"
+      # Reduce stock quantity
+      product.update!(stock_quantity: product.stock_quantity - quantity)
     end
+
+    # Store order ID and payment intent client secret in session for payment page
+    session[:pending_order_id] = order.id
+    session[:payment_client_secret] = payment_intent.client_secret
+
+    # Redirect to payment page
+    redirect_to payment_path
   end
+end
 
   private
 
@@ -146,14 +167,12 @@ class CheckoutsController < ApplicationController
   end
 
   def calculate_taxes(customer, subtotal)
-    # Use customer's province or default to first province
     province_tax = if customer.province_id.present?
                     ProvinceTax.find_by(id: customer.province_id)
     else
                     ProvinceTax.first
     end
 
-    # Fallback to zero taxes if no province found
     province_tax ||= OpenStruct.new(gst: 0, pst: 0, hst: 0)
 
     @gst = subtotal * (province_tax.gst.to_f / 100.0)
@@ -161,7 +180,6 @@ class CheckoutsController < ApplicationController
     @hst = subtotal * (province_tax.hst.to_f / 100.0)
   end
 
-  # Prepares instance variables for rendering checkout form
   def prepare_checkout_view
     @products ||= Product.where(id: @cart.keys)
     @subtotal ||= calculate_subtotal(@products)

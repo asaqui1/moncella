@@ -1,0 +1,77 @@
+div style="max-width: 600px; margin: 50px auto; padding: 20px;">
+  <h2>Edit <%= resource_name.to_s.humanize %></h2>
+
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :username %><br />
+      <%= f.text_field :username, autofocus: true, autocomplete: "username", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, autocomplete: "email", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+    <% end %>
+
+    <h3 style="margin-top: 30px;">Address Information</h3>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :street, "Street Address" %><br />
+      <%= f.text_field :street, autocomplete: "street-address", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :city %><br />
+      <%= f.text_field :city, autocomplete: "address-level2", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :province_id, "Province" %><br />
+      <%= f.collection_select :province_id, ProvinceTax.all, :id, :name, { prompt: "Select a province" }, { autocomplete: "address-level1", style: "width: 100%; padding: 8px;" } %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :postal_code %><br />
+      <%= f.text_field :postal_code, autocomplete: "postal-code", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <h3 style="margin-top: 30px;">Change Password</h3>
+    <p><em>Leave blank if you don't want to change it</em></p>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :password, "New password" %><br />
+      <%= f.password_field :password, autocomplete: "new-password", style: "width: 100%; padding: 8px;" %>
+      <% if @minimum_password_length %>
+        <br />
+        <em><%= @minimum_password_length %> characters minimum</em>
+      <% end %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :password_confirmation, "Confirm new password" %><br />
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", style: "width: 100%; padding: 8px;" %>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <%= f.label :current_password %><br />
+      <%= f.password_field :current_password, autocomplete: "current-password", style: "width: 100%; padding: 8px;" %>
+      <br />
+      <em>We need your current password to confirm your changes</em>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <%= f.submit "Update", style: "padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;" %>
+    </div>
+  <% end %>
+
+  <h3 style="margin-top: 40px;">Cancel my account</h3>
+
+  <div><%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete, style: "padding: 10px 20px; background: #dc3545; color: white; border: none; cursor: pointer;" %></div>
+
+  <%= link_to "Back", :back %>
+</div>

@@ -1,0 +1,46 @@
+<h1>Order Details</h1>
+
+<div class="order-info">
+  <p><strong>Order Date:</strong> <%= @order.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  <p><strong>Status:</strong> <%= @order.status.titleize %></p>
+  <p><strong>Province:</strong> <%= @order.province_tax&.name %></p>
+</div>
+
+<h2>Order Items</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Price</th>
+      <th>Quantity</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @order.order_items.each do |item| %>
+      <tr>
+        <td><%= item.product.name %></td>
+        <td><%= number_to_currency(item.price) %></td>
+        <td><%= item.quantity %></td>
+        <td><%= number_to_currency(item.price * item.quantity) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="order-totals">
+  <p><strong>Subtotal:</strong> <%= number_to_currency(@order.subtotal) %></p>
+  <% if @order.gst_amount > 0 %>
+    <p><strong>GST:</strong> <%= number_to_currency(@order.gst_amount) %></p>
+  <% end %>
+  <% if @order.pst_amount > 0 %>
+    <p><strong>PST:</strong> <%= number_to_currency(@order.pst_amount) %></p>
+  <% end %>
+  <% if @order.hst_amount > 0 %>
+    <p><strong>HST:</strong> <%= number_to_currency(@order.hst_amount) %></p>
+  <% end %>
+  <p class="total"><strong>Total:</strong> <%= number_to_currency(@order.total_amount) %></p>
+</div>
+
+<%= link_to "Back to My Orders", orders_path %>

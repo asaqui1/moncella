@@ -3,8 +3,10 @@ Rails.application.routes.draw do
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
 
-  # Devise routes for customers
-  devise_for :customers
+# Devise routes for customers with custom controller
+devise_for :customers, path: "customers", controllers: {
+  registrations: "customers/registrations"
+}
 
   # Products front-end
   root "products#index"
@@ -17,9 +19,17 @@ Rails.application.routes.draw do
     delete "remove/:product_id", to: "carts#remove", as: :remove
   end
 
+  # Customer Orders
+  resources :orders, only: [ :index, :show ]
+
   # Checkout
   get  "/checkout",         to: "checkouts#new",     as: :checkout
   post "/checkout_confirm", to: "checkouts#confirm", as: :checkout_confirm
+
+  # Payment
+  get  "/payment",         to: "payments#show",    as: :payment
+  get  "/payment/success", to: "payments#success", as: :payment_success
+  get  "/payment/cancel",  to: "payments#cancel",  as: :payment_cancel
 
   # Health check
   get "up", to: "rails/health#show", as: :rails_health_check

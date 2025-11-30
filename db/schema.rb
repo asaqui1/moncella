@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_27_053555) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_30_040837) do
   create_table "active_admin_comments", force: :cascade do |t|
     t.integer "author_id"
     t.string "author_type"
@@ -127,6 +127,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_053555) do
     t.decimal "gst_amount"
     t.decimal "hst_amount"
     t.datetime "order_date"
+    t.string "payment_intent_id"
     t.integer "province_id", null: false
     t.decimal "pst_amount"
     t.string "status"
@@ -195,6 +196,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_27_053555) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "customers"
-  add_foreign_key "orders", "provinces"
+  add_foreign_key "orders", "province_taxes", column: "province_id"
   add_foreign_key "products", "categories"
 end

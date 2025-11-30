@@ -1,4 +1,5 @@
 <header class="site-header">
+
   <!-- Top Announcement Bar -->
   <div class="top-bar">
     <div class="container">
@@ -10,16 +11,23 @@
 
   <!-- Main Navigation -->
   <div class="main-nav">
+
+    <!-- GRID CONTAINER (must contain ONLY 3 items!) -->
     <div class="container">
+
+      <!-- Left: mobile toggle -->
       <div class="nav-left">
         <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
       </div>
 
+      <!-- Center: brand -->
       <div class="nav-center">
         <%= link_to "MONCELLA", root_path, class: "navbar-brand" %>
       </div>
 
+      <!-- Right: icons -->
       <div class="nav-right">
+
         <!-- Dark Mode Toggle -->
         <button class="theme-toggle" onclick="toggleDarkMode()" id="theme-toggle">
           <span id="theme-text">Dark</span>
@@ -27,7 +35,8 @@
 
         <!-- Search Icon -->
         <%= link_to products_path, class: "icon-link", title: "Search" do %>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
@@ -35,49 +44,79 @@
 
         <!-- Cart Icon -->
         <%= link_to cart_path, class: "icon-link", title: "Shopping Cart" do %>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <path d="M16 10a4 4 0 0 1-8 0"></path>
           </svg>
-          <!-- Optional: Show cart count -->
-          <%# <span class="cart-count">3</span> %>
         <% end %>
 
         <!-- Account -->
         <% if customer_signed_in? %>
-          <%= link_to edit_customer_registration_path, class: "icon-link", title: "Account" do %>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          <% end %>
-        <% else %>
-          <%= link_to new_customer_session_path, class: "icon-link", title: "Sign In" do %>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          <% end %>
-        <% end %>
-      </div>
-    </div>
-  </div>
+          <div class="account-dropdown">
+            <button class="icon-link" onclick="toggleAccountMenu()" title="Account">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </button>
 
-  <!-- Main Menuuu -->
-  <div class="container">
+            <div class="account-menu" id="account-menu">
+              <div class="account-header">
+                <strong><%= current_customer.username %></strong>
+                <small><%= current_customer.email %></small>
+              </div>
+
+              <%= link_to "My Orders", orders_path, class: "account-menu-item" %>
+              <%= link_to "Edit Profile", edit_customer_registration_path, class: "account-menu-item" %>
+              <%= button_to "Logout", destroy_customer_session_path, method: :delete,
+                    class: "account-menu-item logout-btn" %>
+            </div>
+          </div>
+
+        <% else %>
+
+          <!-- Sign In Icon -->
+          <%= link_to new_customer_session_path, class: "icon-link", title: "Sign In" do %>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          <% end %>
+
+        <% end %>
+
+      </div><!-- /.nav-right -->
+
+    </div><!-- /.container (3-column grid) -->
+
+    <!-- Main Menu BELOW the grid -->
     <ul class="main-menu" id="main-menu">
-      <li><%= link_to "New", products_path(new: true), class: current_page?(products_path(new: true)) ? 'active' : '' %></li>
-      <li><%= link_to "Products", products_path, class: current_page?(products_path) ? 'active' : '' %></li>
-      <li><%= link_to "Sale", products_path(on_sale: true), class: current_page?(products_path(on_sale: true)) ? 'active' : '' %></li>
-      <li><%= link_to "About", about_path, class: current_page?(about_path) ? 'active' : '' %></li>
-      <li><%= link_to "Contact", contact_path, class: current_page?(contact_path) ? 'active' : '' %></li>
+      <li><%= link_to "New", products_path(new: true),
+              class: current_page?(products_path(new: true)) ? "active" : "" %></li>
+
+      <li><%= link_to "Products", products_path,
+              class: current_page?(products_path) ? "active" : "" %></li>
+
+      <li><%= link_to "Sale", products_path(on_sale: true),
+              class: current_page?(products_path(on_sale: true)) ? "active" : "" %></li>
+
+      <li><%= link_to "About", about_path,
+              class: current_page?(about_path) ? "active" : "" %></li>
+
+      <li><%= link_to "Contact", contact_path,
+              class: current_page?(contact_path) ? "active" : "" %></li>
     </ul>
-  </div>
+
+  </div><!-- /.main-nav -->
+
 </header>
 
 <script>
-  // Dark Mode Togglee
+  // Dark Mode Toggle
   function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
@@ -98,4 +137,19 @@
   function toggleMobileMenu() {
     document.getElementById('main-menu').classList.toggle('show');
   }
+
+  // Account Menu Toggle
+  function toggleAccountMenu() {
+    const menu = document.getElementById('account-menu');
+    menu.classList.toggle('show');
+  }
+
+  // Close account menu when clicking outside
+  document.addEventListener('click', function(event) {
+    const accountDropdown = document.querySelector('.account-dropdown');
+    const accountMenu = document.getElementById('account-menu');
+    if (accountDropdown && !accountDropdown.contains(event.target)) {
+      accountMenu.classList.remove('show');
+    }
+  });
 </script>

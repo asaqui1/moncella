@@ -2,6 +2,7 @@ source "https://rubygems.org"
 
 gem "devise"
 gem "activeadmin"
+gem "stripe"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.1"

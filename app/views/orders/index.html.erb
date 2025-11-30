@@ -1,0 +1,37 @@
+<h1>My Orders</h1>
+
+<% if @orders.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Order Date</th>
+        <th>Status</th>
+        <th>Items</th>
+        <th>Subtotal</th>
+        <th>GST</th>
+        <th>PST</th>
+        <th>HST</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= order.created_at.strftime("%B %d, %Y") %></td>
+          <td><%= order.status.titleize %></td>
+          <td><%= order.order_items.count %></td>
+          <td><%= number_to_currency(order.subtotal) %></td>
+          <td><%= number_to_currency(order.gst_amount) %></td>
+          <td><%= number_to_currency(order.pst_amount) %></td>
+          <td><%= number_to_currency(order.hst_amount) %></td>
+          <td><%= number_to_currency(order.total_amount) %></td>
+          <td><%= link_to "View Details", order_path(order) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>You haven't placed any orders yet.</p>
+  <%= link_to "Start Shopping", products_path, class: "button" %>
+<% end %>
