@@ -153,7 +153,7 @@ class CheckoutsController < ApplicationController
                     ProvinceTax.first
     end
 
-    # Fallback to zero taxes if no province found
+    # Fallback to zero taxes if no province found here
     province_tax ||= OpenStruct.new(gst: 0, pst: 0, hst: 0)
 
     @gst = subtotal * (province_tax.gst.to_f / 100.0)
