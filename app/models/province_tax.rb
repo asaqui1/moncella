@@ -2,8 +2,10 @@ class ProvinceTax < ApplicationRecord
   has_many :customers, foreign_key: "province_id"
   has_many :orders, foreign_key: "province_id"
 
-  validates :name, presence: true, uniqueness: true
-  validates :gst, :pst, :hst, numericality: { greater_than_or_equal_to: 0 }
+  validates :name, presence: true, uniqueness: true, length: { minimum: 2, maximum: 100 }
+  validates :gst, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :pst, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :hst, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 
   # Ransack configuration
   def self.ransackable_attributes(auth_object = nil)
