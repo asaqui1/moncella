@@ -3,11 +3,20 @@ class Order < ApplicationRecord
   belongs_to :province_tax, class_name: "ProvinceTax", foreign_key: "province_id"
   has_many :order_items, dependent: :destroy
 
-  validates :status, presence: true
-  validates :subtotal, :gst_amount, :pst_amount, :hst_amount, :total_amount, numericality: { greater_than_or_equal_to: 0 }
+  # Validations
+  validates :customer_id, presence: true
   validates :province_id, presence: true
+  validates :status, presence: true, inclusion: { in: %w[pending paid shipped delivered cancelled] }
+  validates :subtotal, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :gst_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :pst_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :hst_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :total_amount, presence: true, numericality: { greater_than: 0 }
+  validates :order_date, presence: true
+  validates :payment_intent_id, length: { maximum: 255 }, allow_blank: true
 
   before_validation :set_default_status, on: :create
+  before_validation :set_order_date, on: :create
 
   # Allow associations for ransack
   def self.ransackable_associations(auth_object = nil)
@@ -31,5 +40,9 @@ class Order < ApplicationRecord
 
   def set_default_status
     self.status ||= "pending"
+  end
+
+  def set_order_date
+    self.order_date ||= Time.current
   end
 end
