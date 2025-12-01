@@ -8,14 +8,14 @@ class Customer < ApplicationRecord
   has_many :orders, dependent: :destroy
 
   # Validations
-  validates :username, presence: true, uniqueness: true
-  validates :email, presence: true, uniqueness: true
+  validates :username, presence: true, uniqueness: true, length: { minimum: 3, maximum: 50 }
+  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
-  # Address validations - simplified (no format checking)
-  validates :street, presence: true, if: :address_required?
-  validates :city, presence: true, if: :address_required?
-  validates :postal_code, presence: true, if: :address_required?
-  validates :province_id, presence: true, if: :address_required?
+  # Address validations
+  validates :street, length: { maximum: 255 }, allow_blank: true
+  validates :city, length: { maximum: 100 }, allow_blank: true
+  validates :postal_code, format: { with: /\A[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d\z/, message: "must be valid Canadian postal code (e.g., A1A 1A1)" }, allow_blank: true
+  validates :province_id, numericality: { only_integer: true }, allow_nil: true
 
   # Ransack's configuration
   def self.ransackable_attributes(auth_object = nil)
@@ -30,11 +30,5 @@ class Customer < ApplicationRecord
   def full_address
     return "Address not provided" unless street.present?
     [ street, city, province_tax&.name, postal_code ].compact.join(", ")
-  end
-
-  private
-
-  def address_required?
-    false # Set to true if you want to always require address
   end
 end
