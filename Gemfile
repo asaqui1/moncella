@@ -59,7 +59,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
-gem "faker", "~> 3.0"
+gem "faker", "~> 3.5"
 gem "kaminari"
 gem "sassc-rails"
 
